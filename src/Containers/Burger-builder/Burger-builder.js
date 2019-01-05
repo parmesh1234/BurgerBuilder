@@ -6,6 +6,7 @@ import BuildControls from '../../Components/Burger/BuildControls/BuildControls';
 import Modal from '../../Components/UI/Modal/Modal';
 import OrderSummary from '../../Components/Burger/OrderSummary/OrderSummary';
 import Backdrop from '../../Components/UI/Backdrop/Backdrop';
+import axios from '../../axios-orders';
 
 
 const INGREDIENT_PRICES = {
@@ -72,6 +73,29 @@ class BurgerBuilder extends Component{
         this.setState({purchasing : false})
     }
     
+    purchaseContinueHandler = () => {
+        const orderObject = {
+            ingredients : this.state.ingredients,
+            price : this.state.price.toFixed(2),
+            customer : {
+                name : 'Parmeshwar',
+                address : {
+                    street : 'Nacharam',
+                    zipCode : 500076,
+                    country : 'India'
+                },
+                email : 'parmesh1042@gmail.com',
+                deliveryMethod : 'fastest'
+            }
+        }
+        axios.post('/orders.json',orderObject)
+        .then(response => {
+            console.log(response);
+        })
+        .catch(error => {
+            console.log(error)
+        });
+    }
     render(){
         const disabledInfo = {
             ...this.state.ingredients
@@ -82,8 +106,13 @@ class BurgerBuilder extends Component{
         return (
             <Aux>
                 <Backdrop show={this.state.purchasing} clicked={this.closeBackdrop} />
-                <Modal show={this.state.purchasing}>
-                    <OrderSummary  ingredients={this.state.ingredients}/> 
+                <Modal show={this.state.purchasing}
+                    >
+                    <OrderSummary  
+                        ingredients={this.state.ingredients}
+                        totalPrice={this.state.price}
+                        clickedContinue = {this.purchaseContinueHandler}
+                        cancelClicked={this.closeBackdrop}/> 
                 </Modal>
                 <Burger ingredients = {this.state.ingredients} />
                 <BuildControls
